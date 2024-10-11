@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Menu</title>
+    <style>
+        body {
+            background-color: #2196F3; /* Blue background */
+            color: white; /* Text color */
+            font-family: Arial, sans-serif; /* Font style */
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+            margin: 0; /* Remove default margin */
+            text-align: center; /* Center text */
+        }
+
+        .mountain {
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 100px solid #8B4513; /* Brown color for mountains */
+            position: relative;
+            margin-bottom: -20px; /* Overlap mountains with the text */
+        }
+
+        .mountain:before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 80px solid transparent;
+            border-right: 80px solid transparent;
+            border-bottom: 80px solid #A0522D; /* Darker brown for the top of the mountain */
+            position: absolute;
+            left: 10px; /* Adjust position */
+            bottom: 100%; /* Position above the main mountain */
+        }
+
+        /* Style for form */
+        .login-form {
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            width: 300px; /* Set form width */
+            display: block; /* Default display */
+        }
+
+        /* Style for input fields */
+        input[type="text"],
+        input[type="password"] {
+            width: 100%; /* Full width */
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+
+        /* Style for submit button */
+        .submit-button {
+            background-color: #4CAF50; /* Green button */
+            color: white; /* White text */
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            width: 100%; /* Full width */
+        }
+
+        .submit-button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        /* Menu after login */
+        .menu {
+            display: none; /* Initially hidden */
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            width: 300px;
+        }
+
+        .menu-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .menu-item:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="mountain"></div>
+    <h1>Selamat datang di tampilan pegunungan biru!</h1>
+    <p>Ini adalah contoh halaman web dengan latar belakang biru.</p>
+
+    <!-- Login Form -->
+    <div class="login-form" id="loginForm">
+        <h2>Login</h2>
+        <form onsubmit="handleLogin(event)">
+            <input type="text" id="username" placeholder="Username" value="cinta" required>
+            <input type="password" id="password" placeholder="Password" value="cinta" required>
+            <button type="submit" class="submit-button">Masuk</button>
+        </form>
+    </div>
+
+    <!-- Menu after login -->
+    <div class="menu" id="menu">
+        <h2>Selamat datang, <span id="userDisplay"></span>!</h2>
+        <a href="#" class="menu-item">Surat Masuk</a>
+        <a href="#" class="menu-item">Surat Keluar</a>
+        <a href="#" class="menu-item">Arsip</a>
+        <a href="#" class="menu-item">Input Data</a>
+        <a href="#" class="menu-item" id="logoutButton" onclick="handleLogout()">Logout</a>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault(); // Mencegah form dari submit
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Cek apakah username dan password cocok
+            if (username === "cinta" && password === "cinta") {
+                document.getElementById('userDisplay').innerText = username; // Tampilkan username
+                document.getElementById('loginForm').style.display = 'none'; // Sembunyikan form
+                document.getElementById('menu').style.display = 'block'; // Tampilkan menu
+            } else {
+                alert('Username atau password salah!'); // Pesan kesalahan
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('loginForm').style.display = 'block'; // Tampilkan kembali form login
+            document.getElementById('menu').style.display = 'none'; // Sembunyikan menu
+            document.getElementById('username').value = 'cinta'; // Set kembali username default
+            document.getElementById('password').value = 'cinta'; // Set kembali password default
+            alert('Anda telah logout'); // Opsional: beri tahu pengguna
+        }
+    </script>
+</body>
+</html>

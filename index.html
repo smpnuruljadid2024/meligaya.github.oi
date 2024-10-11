@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengumuman Kelulusan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1c1f3a;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .countdown-container {
+            text-align: center;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        h1 {
+            color: #ffffff; /* Warna tulisan awal adalah putih */
+            transition: color 0.5s; /* Transisi halus untuk perubahan warna */
+        }
+
+        h1.active {
+            color: #000000; /* Warna tulisan menjadi hitam setelah pengumuman */
+        }
+
+        h2 {
+            color: #333333;
+        }
+
+        #instruction-text {
+            color: #ffffff; /* Warna tulisan awal adalah putih */
+            transition: color 0.5s; /* Transisi halus untuk perubahan warna */
+        }
+
+        #instruction-text.active {
+            color: #000000; /* Warna tulisan menjadi hitam setelah pengumuman */
+        }
+
+        .countdown {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 94%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .error {
+            color: red;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        #instruction-text-container {
+            display: none; /* Disembunyikan sampai waktunya tiba */
+        }
+    </style>
+</head>
+<body>
+
+<div id="countdown-overlay" class="countdown-container">
+    <h1 id="announcement-text">Pengumuman Kelulusan</h1> <!-- Tulisan Pengumuman Kelulusan -->
+    <p>Pengumuman akan tersedia pada:</p>
+    <div id="countdown" class="countdown"></div>
+</div>
+
+<div class="container" id="kelulusan-container">
+    <h1 id="announcement-text-2">Pengumuman Kelulusan</h1> <!-- Tulisan Pengumuman Kelulusan tetap muncul -->
+    <div id="instruction-text-container">
+        <p id="instruction-text">Masukkan NISN Anda:</p> <!-- Akan disembunyikan sebelum pengumuman -->
+        <input type="text" id="nisnInput" placeholder="Masukkan NISN">
+        <button onclick="checkKelulusan()">Cek Kelulusan</button>
+        <div id="result" class="result"></div>
+    </div>
+</div>
+
+<script>
+    const publicSpreadsheetUrl = 'https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/e/2PACX-1vQIGwpw4bwjj6XlwF7ot_SEYdYWydvxAg28eZhzhYMWpk25JdUZVVy6tGrEG9pEMPNB7-zxfQKFGMkR/pub?output=csv';
+    let dataSiswa = [];
+
+    const releaseDate = new Date("2024-10-10T17:52:00").getTime(); // Waktu pengumuman
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    const kelulusanContainer = document.getElementById('kelulusan-container');
+    const instructionTextContainer = document.getElementById('instruction-text-container');
+    const inputElements = document.querySelectorAll('#nisnInput, button'); // Input dan button
+
+    // Fungsi untuk mengambil data CSV
+    function init() {
+        fetch(publicSpreadsheetUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.text();
+            })
+            .then(csvText => {
+                dataSiswa = parseCSV(csvText);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }
+
+    // Fungsi untuk mem-parsing CSV ke array objek
+    function parseCSV(csvText) {
+        const rows = csvText.split('\n').map(row => row.split(','));
+        const headers = rows[0]; // Mengambil header dari baris pertama
+        const data = rows.slice(1).map(row => {
+            let obj = {};
+            headers.forEach((header, i) => {
+                obj[header.trim()] = row[i] ? row[i].trim() : ""; // Menghindari nilai kosong
+            });
+            return obj;
+        });
+        return data;
+    }
+
+    // Fungsi untuk mengecek kelulusan berdasarkan NISN
+    function checkKelulusan() {
+        const nisn = document.getElementById('nisnInput').value.trim();
+        const resultBox = document.getElementById('result');
+
+        if (nisn === "") {
+            resultBox.innerHTML = '<p class="error">Masukkan NISN Anda!</p>';
+            return;
+        }
+
+        const siswa = dataSiswa.find(s => s.NISN && s.NISN.toLowerCase() === nisn.toLowerCase());
+
+        if (siswa) {
+            const statusKelulusan = siswa.Status || "Status tidak tersedia";
+            const linkKelulusan = siswa.Link || "0%";
+
+            resultBox.innerHTML = `<h2>${siswa.Nama}</h2>
+                                   <p>Status Kelulusan: <strong>${statusKelulusan}</strong></p>
+                                   <p><a href="${linkKelulusan}" target="_blank" rel="noopener noreferrer">Lihat Link Kelulusan</a></p>`;
+        } else {
+            resultBox.innerHTML = '<p class="error">NISN tidak ditemukan</p>';
+        }
+    }
+
+    // Countdown Timer
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const timeLeft = releaseDate - now;
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        document.getElementById('countdown').innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+        if (timeLeft < 0) {
+            clearInterval(timer);
+            countdownOverlay.style.display = 'none'; // Sembunyikan countdown
+            kelulusanContainer.style.display = 'block'; // Tampilkan container
+            instructionTextContainer.style.display = 'block'; // Tampilkan input NISN dan button
+            document.getElementById('announcement-text').classList.add('active'); // Ubah warna menjadi hitam
+            document.getElementById('announcement-text-2').classList.add('active'); // Ubah warna menjadi hitam pada pengumuman kedua
+            document.getElementById('instruction-text').classList.add('active'); // Ubah warna menjadi hitam pada instruksi
+        } else {
+            instructionTextContainer.style.display = 'none'; // Sembunyikan instruksi sebelum waktunya
+            inputElements.forEach(el => el.style.display = 'none'); // Sembunyikan input NISN dan button sebelum waktunya
+        }
+    }
+
+    const timer = setInterval(updateCountdown, 1000);
+
+    window.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
